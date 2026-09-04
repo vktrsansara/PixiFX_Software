@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.PixiFX" parent="android:Theme.Material.NoActionBar">
+        <!-- Status bar (top) -->
+        <item name="android:statusBarColor">#14161F</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation bar (bottom) -->
+        <item name="android:navigationBarColor">#14161F</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Background -->
+        <item name="android:windowBackground">#1A1B26</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+</resources>

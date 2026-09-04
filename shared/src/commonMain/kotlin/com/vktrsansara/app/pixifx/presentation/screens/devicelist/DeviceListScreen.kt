@@ -121,9 +121,7 @@ fun DeviceListScreen(
     }
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding(), // Guarantees layout is strictly between top status bar & bottom nav bar
+        modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = TokyoNightBackground,
         snackbarHost = { SnackbarHost(snackbarHostState) },

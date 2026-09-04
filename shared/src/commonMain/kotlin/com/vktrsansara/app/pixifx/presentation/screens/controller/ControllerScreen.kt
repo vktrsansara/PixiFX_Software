@@ -63,9 +63,7 @@ fun ControllerScreen(
     }
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding(), // Safe insets between status bar and navigation bar
+        modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = TokyoNightBackground,
         snackbarHost = { SnackbarHost(snackbarHostState) },
