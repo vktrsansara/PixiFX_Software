@@ -1,47 +1,44 @@
 package com.vktrsansara.app.pixifx
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
-import pixifx.shared.generated.resources.Res
-import pixifx.shared.generated.resources.compose_multiplatform
+import androidx.compose.animation.Crossfade
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.vktrsansara.app.pixifx.domain.model.Device
+import com.vktrsansara.app.pixifx.presentation.screens.controller.ControllerScreen
+import com.vktrsansara.app.pixifx.presentation.screens.controller.ControllerViewModel
+import com.vktrsansara.app.pixifx.presentation.screens.devicelist.DeviceListScreen
+import com.vktrsansara.app.pixifx.presentation.screens.devicelist.DeviceListViewModel
+import com.vktrsansara.app.pixifx.presentation.theme.PixiFxTheme
+import org.koin.compose.KoinContext
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+    KoinContext {
+        PixiFxTheme {
+            var selectedDevice by remember { mutableStateOf<Device?>(null) }
+
+            Crossfade(targetState = selectedDevice) { device ->
+                if (device == null) {
+                    val deviceListViewModel = koinViewModel<DeviceListViewModel>()
+                    DeviceListScreen(
+                        viewModel = deviceListViewModel,
+                        onNavigateToController = { connectedDevice ->
+                            selectedDevice = connectedDevice
+                        }
+                    )
+                } else {
+                    val controllerViewModel = koinViewModel<ControllerViewModel>()
+                    ControllerScreen(
+                        device = device,
+                        viewModel = controllerViewModel,
+                        onNavigateBack = {
+                            selectedDevice = null
+                        }
+                    )
                 }
             }
         }
