@@ -9,6 +9,7 @@ data class DeviceListState(
     val isSearching: Boolean = false,
     val isConnectingDirect: Boolean = false,
     val devices: List<Device> = emptyList(),
+    val selectedDeviceIds: Set<String> = emptySet(),
     val errorMessage: String? = null,
     val connectedDevice: Device? = null,
     val directIpInput: String = "10.10.1.1",
@@ -21,6 +22,11 @@ sealed interface DeviceListIntent : UiIntent {
     data class ConnectDirectIp(val ipOrHost: String) : DeviceListIntent
     data class UpdateDirectIpInput(val ip: String) : DeviceListIntent
     data class SetDirectIpDialogVisible(val visible: Boolean) : DeviceListIntent
+    data class ToggleDeviceSelection(val deviceId: String) : DeviceListIntent
+    data class SelectAllDevices(val select: Boolean) : DeviceListIntent
+    data class ClickInfo(val device: Device) : DeviceListIntent
+    data class ClickDownload(val device: Device) : DeviceListIntent
+    data class ClickSettings(val device: Device) : DeviceListIntent
     data object ClearError : DeviceListIntent
 }
 

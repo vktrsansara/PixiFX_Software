@@ -19,4 +19,6 @@ val TokyoNightYellow = Color(0xFFE0AF68)        // Yellow
 val TokyoNightTextPrimary = Color(0xFFC0CAF5)   // Light Blue-White
 val TokyoNightTextSecondary = Color(0xFF565F89) // Muted Blue-Gray
 val TokyoNightBorder = Color(0xFF414868)        // Divider / Border
+val TokyoNightCardBorder = Color(0xFF2F354F)    // Card Border
+val TokyoNightNavBackground = Color(0xFF16161E) // Bottom Nav Background
 val TokyoNightOverlay = Color(0x33000000)

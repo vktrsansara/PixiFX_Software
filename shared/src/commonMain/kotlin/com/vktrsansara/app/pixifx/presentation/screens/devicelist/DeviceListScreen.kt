@@ -11,6 +11,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,12 +26,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -87,7 +89,7 @@ import com.vktrsansara.app.pixifx.presentation.theme.TokyoNightTextPrimary
 import com.vktrsansara.app.pixifx.presentation.theme.TokyoNightTextSecondary
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DeviceListScreen(
     viewModel: DeviceListViewModel,
@@ -125,7 +127,6 @@ fun DeviceListScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = TokyoNightBackground,
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        // 1. HEADER (TopAppBar)
         topBar = {
             TopAppBar(
                 windowInsets = WindowInsets(0, 0, 0, 0),
@@ -148,7 +149,7 @@ fun DeviceListScreen(
                     }
                 },
                 actions = {
-                    // Search / Refresh Icon Button (Left action)
+                    // Search / Refresh Icon Button
                     if (state.isSearching) {
                         val infiniteTransition = rememberInfiniteTransition()
                         val angle by infiniteTransition.animateFloat(
@@ -182,7 +183,7 @@ fun DeviceListScreen(
                         }
                     }
 
-                    // Direct IP Icon Button (Right action)
+                    // Direct IP Icon Button
                     IconButton(
                         onClick = { viewModel.processIntent(DeviceListIntent.SetDirectIpDialogVisible(true)) }
                     ) {
@@ -198,21 +199,8 @@ fun DeviceListScreen(
                     titleContentColor = TokyoNightTextPrimary
                 )
             )
-        },
-        // 3. FOOTER (BottomBar - Empty placeholder for future tabs)
-        bottomBar = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                color = TokyoNightSurface,
-                border = BorderStroke(width = 1.dp, color = TokyoNightBorder)
-            ) {
-                // Empty for future navigation tabs
-            }
         }
     ) { paddingValues ->
-        // 2. WORK AREA (Middle block)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -234,24 +222,40 @@ fun DeviceListScreen(
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
-                LazyColumn(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .verticalScroll(rememberScrollState()),
+                    contentAlignment = Alignment.TopCenter
                 ) {
-                    items(
-                        items = state.devices,
-                        key = { it.id }
-                    ) { device ->
-                        DeviceCard(
-                            device = device,
-                            isConnected = state.connectedDevice?.id == device.id,
-                            onConnectClick = {
-                                viewModel.processIntent(DeviceListIntent.ConnectToDevice(device))
-                            }
-                        )
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .widthIn(max = 1480.dp)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        maxItemsInEachRow = 4
+                    ) {
+                        state.devices.forEach { device ->
+                            DeviceCard(
+                                device = device,
+                                isSelected = state.selectedDeviceIds.contains(device.id),
+                                onSelectChanged = {
+                                    viewModel.processIntent(DeviceListIntent.ToggleDeviceSelection(device.id))
+                                },
+                                onClickInfo = {
+                                    viewModel.processIntent(DeviceListIntent.ClickInfo(device))
+                                },
+                                onClickDownload = {
+                                    viewModel.processIntent(DeviceListIntent.ClickDownload(device))
+                                },
+                                onClickSettings = {
+                                    viewModel.processIntent(DeviceListIntent.ClickSettings(device))
+                                },
+                                modifier = Modifier.widthIn(min = 280.dp, max = 350.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -389,7 +393,7 @@ private fun EmptyDeviceListContent(
     ) {
         Card(
             modifier = Modifier
-                .widthIn(max = 440.dp) // Constrained width on desktop & tablet
+                .widthIn(max = 440.dp)
                 .fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = TokyoNightCard),
             border = BorderStroke(1.dp, TokyoNightBorder),
@@ -402,7 +406,6 @@ private fun EmptyDeviceListContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Material Icon indicator
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -441,7 +444,7 @@ private fun EmptyDeviceListContent(
 
                 Text(
                     text = if (isSearching) {
-                        "Опрос AP 10.10.1.1, mDNS pixifx.local и параллельный скан всех локальных подсетей..."
+                        "Опрос AP 10.10.1.1, mDNS pixifx.local и быстрый UDP broadcast поиск..."
                     } else {
                         "Подключитесь к Wi-Fi сети контроллера (Pixi_Setup / Pixi_XXXXXX) или убедитесь, что ПК и контроллер в одной Wi-Fi сети."
                     },

@@ -31,7 +31,29 @@ class DeviceListViewModel(
             is DeviceListIntent.ConnectDirectIp -> connectDirectIp(intent.ipOrHost)
             is DeviceListIntent.UpdateDirectIpInput -> setState { copy(directIpInput = intent.ip) }
             is DeviceListIntent.SetDirectIpDialogVisible -> setState { copy(showDirectIpDialog = intent.visible) }
+            is DeviceListIntent.ToggleDeviceSelection -> toggleDeviceSelection(intent.deviceId)
+            is DeviceListIntent.SelectAllDevices -> selectAllDevices(intent.select)
+            is DeviceListIntent.ClickInfo -> sendEffect(DeviceListEffect.ShowSnackbar("Информация об устройстве ${intent.device.name} (${intent.device.ip})"))
+            is DeviceListIntent.ClickDownload -> sendEffect(DeviceListEffect.ShowSnackbar("Загрузка шоу/файлов на ${intent.device.name}..."))
+            is DeviceListIntent.ClickSettings -> connectToDevice(intent.device)
             is DeviceListIntent.ClearError -> setState { copy(errorMessage = null) }
+        }
+    }
+
+    private fun toggleDeviceSelection(deviceId: String) {
+        setState {
+            val updated = if (selectedDeviceIds.contains(deviceId)) {
+                selectedDeviceIds - deviceId
+            } else {
+                selectedDeviceIds + deviceId
+            }
+            copy(selectedDeviceIds = updated)
+        }
+    }
+
+    private fun selectAllDevices(select: Boolean) {
+        setState {
+            copy(selectedDeviceIds = if (select) devices.map { it.id }.toSet() else emptySet())
         }
     }
 

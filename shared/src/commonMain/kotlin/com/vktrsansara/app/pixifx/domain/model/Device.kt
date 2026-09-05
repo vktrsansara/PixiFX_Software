@@ -6,5 +6,7 @@ data class Device(
     val mode: DeviceMode,
     val isSetup: Boolean,
     val name: String = id,
-    val deviceType: String = "pixifx-device-esp8266"
+    val deviceType: String = "pixifx-device-esp8266",
+    val fsUsedKb: Int = 632,
+    val fsTotalKb: Int = 2024
 )
